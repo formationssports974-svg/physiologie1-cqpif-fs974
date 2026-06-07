@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCU Physiologie – CQP IF MPT</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ef;
+    --card-bg: #ffffff;
+    --accent: #1a3a2a;
+    --accent2: #4a7c59;
+    --correct-bg: #d6ead9;
+    --wrong-bg: #f5f5f5;
+    --text: #1c1c1c;
+    --muted: #6b6b6b;
+    --border: #e2ddd8;
+    --num-bg: #1a3a2a;
+    --tag-bg: #eaf2ec;
+    --shadow: 0 2px 16px rgba(26,58,42,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--accent); color: white;
+    padding: 3rem 2rem 2.5rem; text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content:''; position:absolute; top:-60px; right:-60px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  header::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .header-label { font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.55); margin-bottom:.6rem; }
+  header h1 { font-family:'DM Serif Display',serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:400; line-height:1.15; margin-bottom:.8rem; }
+  header p  { font-size:.9rem; color:rgba(255,255,255,.65); }
+  .badge-count { display:inline-block; background:var(--accent2); color:white; border-radius:100px; padding:.3rem 1rem; font-size:.8rem; font-weight:600; margin-top:1rem; letter-spacing:.03em; }
+
+  .controls { max-width:940px; margin:1.8rem auto 0; padding:0 1.5rem; display:flex; gap:.7rem; flex-wrap:wrap; align-items:center; }
+  .filter-btn { padding:.45rem 1.1rem; border-radius:100px; border:1.5px solid var(--border); background:white; font-family:'DM Sans',sans-serif; font-size:.82rem; cursor:pointer; transition:all .18s; color:var(--text); }
+  .filter-btn:hover,.filter-btn.active { background:var(--accent); color:white; border-color:var(--accent); }
+  #search { flex:1; min-width:200px; padding:.45rem 1.1rem; border-radius:100px; border:1.5px solid var(--border); font-family:'DM Sans',sans-serif; font-size:.82rem; outline:none; transition:border .18s; }
+  #search:focus { border-color:var(--accent2); }
+  .counter { font-size:.82rem; color:var(--muted); white-space:nowrap; padding:.45rem .5rem; }
+
+  .grid { max-width:940px; margin:2rem auto 4rem; padding:0 1.5rem; display:flex; flex-direction:column; gap:1.4rem; }
+
+  .card { background:var(--card-bg); border-radius:16px; box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--border); transition:transform .15s,box-shadow .15s; }
+  .card:hover { transform:translateY(-1px); box-shadow:0 6px 28px rgba(26,58,42,0.12); }
+
+  .card-top { display:grid; grid-template-columns:1fr auto; gap:1.2rem; padding:1.4rem 1.6rem 1.2rem; align-items:flex-start; }
+  .q-meta { display:flex; align-items:center; gap:.7rem; margin-bottom:.65rem; flex-wrap:wrap; }
+  .q-num { background:var(--num-bg); color:white; width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0; }
+  .q-tag { background:var(--tag-bg); color:var(--accent2); font-size:.7rem; font-weight:600; padding:.2rem .65rem; border-radius:100px; text-transform:uppercase; letter-spacing:.05em; }
+  .q-text { font-family:'DM Serif Display',serif; font-size:1.08rem; line-height:1.55; color:var(--text); font-weight:400; }
+  .q-img { width:110px; height:90px; object-fit:cover; border-radius:10px; border:1px solid var(--border); flex-shrink:0; }
+  .q-img-placeholder { width:110px; height:90px; border-radius:10px; background:var(--bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; }
+
+  .options { padding:0 1.6rem 1.4rem; display:flex; flex-direction:column; gap:.5rem; }
+  .option { display:flex; align-items:flex-start; gap:.75rem; padding:.6rem .9rem; border-radius:9px; font-size:.88rem; line-height:1.45; border:1.5px solid transparent; background:var(--wrong-bg); }
+  .option.correct { background:var(--correct-bg); border-color:#3a9a56; font-weight:600; color:#1a3a2a; }
+  .option.correct .opt-marker { background:var(--num-bg); color:white; border-color:var(--num-bg); }
+  .opt-marker { width:22px; height:22px; border-radius:50%; border:1.5px solid #c0bdb9; display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:700; flex-shrink:0; margin-top:1px; text-transform:uppercase; }
+  .correct-label { display:inline-flex; align-items:center; gap:.3rem; font-size:.72rem; color:#2d7a48; font-weight:700; letter-spacing:.04em; }
+  .correct-label::before { content:'✓'; }
+  .no-results { text-align:center; padding:4rem 2rem; color:var(--muted); font-size:1rem; }
+
+  @media(max-width:600px) {
+    .card-top { grid-template-columns:1fr; }
+    .q-img,.q-img-placeholder { width:100%; height:140px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-label">Formations et Sports 974 · CQP IF MPT</div>
+  <h1>QCU Physiologie</h1>
+  <p>Questions uniques · Bonne réponse mise en évidence · Image explicative</p>
+  <div class="badge-count" id="total-badge">— questions</div>
+</header>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Rechercher une question…">
+  <button class="filter-btn active" data-filter="all">Toutes</button>
+  <button class="filter-btn" data-filter="muscles">Muscles</button>
+  <button class="filter-btn" data-filter="cardio">Cardio</button>
+  <button class="filter-btn" data-filter="filières">Filières</button>
+  <button class="filter-btn" data-filter="neuro">Neuro</button>
+  <button class="filter-btn" data-filter="respiration">Respiration</button>
+  <button class="filter-btn" data-filter="autres">Autres</button>
+  <span class="counter" id="counter"></span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const IMG = {
+  heart:   "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Diagram_of_the_human_heart_%28cropped%29.svg/320px-Diagram_of_the_human_heart_%28cropped%29.svg.png",
+  muscle:  "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Muscle_fiber_types.svg/320px-Muscle_fiber_types.svg.png",
+  sarco:   "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Sarcomere.svg/320px-Sarcomere.svg.png",
+  atp:     "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/ATP_structure.svg/320px-ATP_structure.svg.png",
+  neuro:   "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Blausen_0657_MultipolarNeuron.png/320px-Blausen_0657_MultipolarNeuron.png",
+  lung:    "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Diaphragm_muscle.jpg/320px-Diaphragm_muscle.jpg",
+  cell:    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Animal_cell_structure_en.svg/320px-Animal_cell_structure_en.svg.png",
+  iso:     "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Isometric_exercise.jpg/320px-Isometric_exercise.jpg",
+  sweat:   "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Blausen_0907_Sweating.png/320px-Blausen_0907_Sweating.png",
+  skeletal:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Skeletal_muscle_tissue.jpg/320px-Skeletal_muscle_tissue.jpg",
+};
+
+const questions = [
+// ══════════ MUSCLES ══════════
+{cat:"muscles", q:"Lors de quel mode de contraction le muscle ne change-t-il pas de longueur ?", opts:["Excentrique","Isométrique","Concentrique"], correct:1, img:IMG.iso},
+{cat:"muscles", q:"Quels sont les fibres musculaires essentiellement utilisées par l'organisme lors d'un sprint de 100 m sur piste ?", opts:["Les fibres de type I","Les fibres de type IIa et IIb","Les fibres de type Ia et IIb"], correct:1, img:IMG.muscle},
+{cat:"muscles", q:"Quelle proposition correspond à un type de fibres musculaires qui existe ?", opts:["Fibre de type I à contraction lente","Fibre de type II à contraction rapide","Fibre de type III"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"Les myofilaments sont composés de …", opts:["De sarcomères","De filaments de fibres musculaires","De sarcolemme"], correct:2, img:IMG.sarco},
+{cat:"muscles", q:"Lors d'une contraction musculaire concentrique, le sarcomère …", opts:["Se multiple","S'allonge","Se raccourcit"], correct:2, img:IMG.sarco},
+{cat:"muscles", q:"Quel est le seul carburant du muscle ?", opts:["ADN","ARN","ATP"], correct:2, img:IMG.atp},
+{cat:"muscles", q:"Quelles sont les caractéristiques du tissu musculaire ?", opts:["Excitables, élastiques et contractiles","Élastiques et contractiles","Excitables et statiques"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"Les fibres de type I sont des fibres à contraction lente.", opts:["Faux","Vrai"], correct:1, img:IMG.muscle},
+{cat:"muscles", q:"Parmi ces propositions, laquelle correspond à un type de muscles ?", opts:["Muscles souples striés","Muscles plats squelettiques","Muscles striés squelettiques"], correct:2, img:IMG.skeletal},
+{cat:"muscles", q:"Comment appelle-t-on les cellules qui composent les fibres musculaires striées ?", opts:["Les myocytes","Les myosines","Les hémocytes"], correct:0, img:IMG.skeletal},
+{cat:"muscles", q:"Durant le phénomène de la contraction musculaire, pour réduire la longueur totale du muscle …", opts:["Les filaments fins et épais glissent les uns sur les autres sans qu'ils ne changent eux-mêmes de longueur","Les filaments fins et épais se raccourcissent","Les filaments d'actine se lient aux filaments de myosine et se raccourcissent"], correct:0, img:IMG.sarco},
+{cat:"muscles", q:"Quel est le rôle du diaphragme dans la respiration ?", opts:["Il régule l'air dans les poumons lors de l'expiration","Il se contracte et s'abaisse pour créer une pression négative dans la cavité thoracique","Il contracte les muscles intercostaux"], correct:1, img:IMG.lung},
+{cat:"muscles", q:"Quel est le rôle des muscles transverses de l'abdomen dans la respiration ?", opts:["Facilitent l'expiration en compriment les viscères","Augmentent le volume thoracique lors de l'inspiration","Ils n'interviennent pas dans la respiration"], correct:0, img:IMG.lung},
+{cat:"muscles", q:"L'énergie nécessaire à la contraction musculaire se nomme …", opts:["Adénosine Triphosphate","Acide désoxyribonucléique","Adrénaline"], correct:0, img:IMG.atp},
+{cat:"muscles", q:"Qu'est-ce qui enveloppe l'axone du neurone ?", opts:["Le sarcolemme","Une gaine de myéline"], correct:1, img:IMG.neuro},
+{cat:"muscles", q:"Que se passe-t-il lors d'une contraction musculaire excentrique ?", opts:["Le muscle se raccourcit","Le muscle ne change pas","Le muscle s'allonge"], correct:2, img:IMG.iso},
+{cat:"muscles", q:"Quelles sont les 3 grandes fonctions de l'organisme ?", opts:["Respiration, circulation, musculosquelettique et urinaire","Nutrition, relation, reproduction et maintien de l'intégrité","Réponse, se mouvoir, communiquer et éliminer"], correct:1, img:IMG.cell},
+{cat:"muscles", q:"En quoi les fibres musculaires de type IIb sont-elles différentes des fibres de type IIa ?", opts:["Elles ont une capacité accrue pour la glycolyse anaérobie – plus puissantes mais moins endurantes","Elles utilisent l'oxydation des lipides pour la production d'énergie","Elles sont liées aux filaments de myosine et les libèrent vers l'hydrogène du sarcomère"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"La voie glycolytique met en avant …", opts:["L'utilisation du glycogène","L'utilisation des phosphates","L'utilisation des glucides"], correct:2, img:IMG.atp},
+{cat:"muscles", q:"Quelles protéines régulent la contraction musculaire ?", opts:["Actine et myosine","Troponine et Tropomyosine","Troponine et myosine"], correct:1, img:IMG.sarco},
+{cat:"muscles", q:"Combien de dendrites peut un neurone contenir ?", opts:["Plusieurs centaines","1","Aucun","2"], correct:0, img:IMG.neuro},
+{cat:"muscles", q:"Les fibres musculaires sont commandées par …", opts:["Neurone sensitif","Neurone auditif","Neurone moteur"], correct:2, img:IMG.neuro},
+{cat:"muscles", q:"Par quoi commence l'excitation musculaire ?", opts:["Libération du calcium","Fixation de l'actine et de la myosine","L'arrivée du message nerveux sur la fibre"], correct:2, img:IMG.sarco},
+{cat:"muscles", q:"Le titre Z sépare les sarcomères adjacents.", opts:["Est une enzyme","Sépare les sarcomères adjacents","Est un myofilament"], correct:1, img:IMG.sarco},
+{cat:"muscles", q:"Un sarcomère est une portion de myofibrille qui contient des myofilaments fins d'actine et des myofilaments fins de myosine.", opts:["Les myofilaments épais de myosine et les myofilaments fins d'actine","Les myofilaments épais d'actine et les myofilaments fins de myosine"], correct:0, img:IMG.sarco},
+{cat:"muscles", q:"Lors du réflexe myotatique, que se passe-t-il lorsqu'un étirement est effectué de façon soudaine ?", opts:["Le muscle se relâche complètement","Le muscle reste immobile","Le muscle se contracte involontairement pour éviter une surtension"], correct:2, img:IMG.neuro},
+{cat:"muscles", q:"La plaque motrice est la jonction entre …", opts:["Deux neurones","Deux fibres musculaires","Un neurone et une fibre musculaire"], correct:2, img:IMG.neuro},
+{cat:"muscles", q:"Lors d'un spasme, quel type de fibres sera utilisé ?", opts:["Les fibres blanches","Les fibres jaunes","Les fibres rouges"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"La contraction musculaire résulte du glissement des filaments d'actine sur les filaments de myosine.", opts:["Du glissement des filaments d'actine sur les filaments de myosine","De la contractilité des tendons","De leurs insertions"], correct:0, img:IMG.sarco},
+{cat:"muscles", q:"La colonne vertébrale et le liquide céphalo-rachidien protègent …", opts:["Les neurones","Le cerveau","La moelle épinière"], correct:2, img:IMG.neuro},
+{cat:"muscles", q:"Que mesure le test Shirasu/Sorensen ?", opts:["Le déséquilibre entre les fléchisseurs et les extenseurs du tibia","Le déséquilibre entre les fléchisseurs et les extenseurs de la jambe","Le déséquilibre entre les fléchisseurs et les extenseurs du tronc"], correct:2, img:IMG.muscle},
+{cat:"muscles", q:"Quel type de séance développe préférentiellement la VMA ?", opts:["10 fois (30 secondes de course rapide 30 secondes de course lente)","5 fois 100 mètres en sprint","Une heure de footing"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"La force développée par un muscle dépend du nombre d'unités motrices recrutées.", opts:["VRAI","FAUX"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"L'hypertrophie est …", opts:["L'augmentation de la production hormonale","L'augmentation du nombre de fibres musculaires","L'augmentation de la taille des fibres musculaires existantes"], correct:2, img:IMG.muscle},
+{cat:"muscles", q:"Lorsque je joue 15 secondes à très haute intensité, je travaille prioritairement dans quelle filière ?", opts:["Anaérobie Lactique","Anaérobie Alactique","Aérobie"], correct:1, img:IMG.atp},
+{cat:"muscles", q:"La répartition des fibres musculaires est la même pour tous les muscles du corps.", opts:["Faux","Vrai"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"Le type I de fibre musculaire est résistant à la fatigue.", opts:["Résistant à la fatigue","Explosif","Très rapide"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"Les fibres musculaires de type I sont …", opts:["Rouges","Bleues","Blanches"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"Pourquoi les fibres à contraction lente sont-elles rouges ?", opts:["À cause de leur forte teneur en myoglobines et en capillaires","À cause du colorant injecté pour les voir au microscope","Du fait d'une classification médicale européenne"], correct:0, img:IMG.muscle},
+{cat:"muscles", q:"Qu'est-ce que le catabolisme ?", opts:["La transformation des molécules complexes en molécules simples","La transformation des molécules simples en molécules complexes"], correct:0, img:IMG.cell},
+{cat:"muscles", q:"De quoi se compose une unité motrice ?", opts:["D'ADN","D'un filament d'actine et de myosine","D'un neurone et de fibres musculaires qu'il innerve"], correct:2, img:IMG.neuro},
+{cat:"muscles", q:"Combien de types de muscles existe-t-il ?", opts:["3","2","4"], correct:0, img:IMG.skeletal},
+{cat:"muscles", q:"Quel est le rôle des fuseaux neuromusculaires dans le réflexe myotatique ?", opts:["Stocker des nutriments pour les muscles","Détecter les changements de longueur musculaire et envoyer des signaux sensoriels","Détecter les changements de tension dans les tendons"], correct:1, img:IMG.neuro},
+{cat:"muscles", q:"La lactatémie a un rôle …", opts:["Entraine une diminution du pH musculaire","Elle permet une production rapide d'énergie en condition anaérobie","Elle augmente directement l'utilisation de l'oxygène par les muscles"], correct:1, img:IMG.atp},
+{cat:"muscles", q:"Le mode d'action pliométrique correspond au cycles de contractions suivant …", opts:["Excentrique – isométrique – excentrique","Concentrique – isométrique – excentrique","Excentrique – isométrique – concentrique"], correct:2, img:IMG.muscle},
+{cat:"muscles", q:"La réalisation d'une séance de 60 minutes à 60% de VO2max sur son ergocycle type vélo …", opts:["Est un effort de nature anaérobie lactique","La dette en O2 est élevée","Permet de développer la synchronisation intra-musculaire","Est un effort de nature aérobie"], correct:3, img:IMG.atp},
+{cat:"muscles", q:"Quel est le principal muscle responsable de l'expansion de la cage thoracique pendant l'inspiration ?", opts:["Le diaphragme","Les muscles abdominaux","Les muscles intercostaux"], correct:0, img:IMG.lung},
+{cat:"muscles", q:"Les différentes filières énergétiques sont dominantes à tour de rôle dans cet ordre-là …", opts:["Anaérobie alactique, puis anaérobie lactique, puis aérobie","Aérobie, puis anaérobie lactique, puis anaérobie alactique","Anaérobie lactique, puis anaérobie alactique, puis aérobie"], correct:0, img:IMG.atp},
+{cat:"muscles", q:"Parmi ces propositions, laquelle n'est pas une filière énergétique ?", opts:["Anaérobie lactique","Aérobie alactique","Aérobie","Anaérobie alactique"], correct:1, img:IMG.atp},
+{cat:"muscles", q:"Une cellule nerveuse est une cellule sans noyau.", opts:["Vrai","Faux"], correct:1, img:IMG.neuro},
+{cat:"muscles", q:"Parmi ces 4 propositions, laquelle n'est pas une qualité physique ?", opts:["L'endurance","L'accélération","La force","La souplesse"], correct:1, img:IMG.muscle},
+
+// ══════════ CARDIO ══════════
+{cat:"cardio", q:"Les arythmies cardiaques sont dues à des problèmes avec …", opts:["La pression artérielle","Le rapport d'oxygène dans le sang","Le système de conduction électrique du cœur"], correct:2, img:IMG.heart},
+{cat:"cardio", q:"Les veines peuvent être dites « cave » ou « pulmonaires » pour certaines d'entre elles.", opts:["Vrai (peuvent être dites cave ou pulmonaires)","Faux"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Comment appelle-t-on la circulation sanguine passant par les poumons ?", opts:["La circulation pulmonaire","La circulation respiratoire","La circulation générale"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Les artères mènent le sang …", opts:["Du cœur vers les organes","Des organes vers le cœur"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Quelle est la fréquence cardiaque normale au repos pour la plupart des adultes ?", opts:["60-100 bpm","80-120 bpm","30-50 bpm"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Selon la formule d'Astrand, comment se calcule la fréquence cardiaque maximale théorique d'un homme ?", opts:["220 – âge","3°FC au repos","200","100 – âge"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Selon la formule d'Astrand, quelle est la fréquence cardiaque maximale d'une femme de 50 ans ?", opts:["176 bpm","156 bpm","186 bpm","166 bpm"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"La fréquence cardiaque de repos se mesure …", opts:["Au réveil","Le soir","L'après-midi"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Un organisme de 63/70 kg contiendrait environ …", opts:["2 à 3 litres de sang","9 à 10 litres de sang","5 à 6 litres de sang"], correct:2, img:IMG.heart},
+{cat:"cardio", q:"Pour quelle raison la coagulation du sang est-elle essentielle ?", opts:["Pour permettre la perte de sang","Pour réduire la perte de sang","Pour augmenter la perte de sang"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Quel est le nom donné aux globules blancs ?", opts:["Les hématies","Les leucocytes","Les plaquettes","Le plasma"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Des globules rouges ou blancs, lesquels sont transporteurs d'oxygène et de gaz carbonique ?", opts:["Globules blancs","Globules rouges (ou hématies)"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Quel organe permet d'enrichir le sang en dioxygène ?", opts:["Les reins","Le foie","L'aorte","Les poumons"], correct:3, img:IMG.lung},
+{cat:"cardio", q:"Quel processus permet l'échange gazeux entre les poumons et le sang ?", opts:["La filtration","L'expulsion","La diffusion"], correct:2, img:IMG.lung},
+{cat:"cardio", q:"Le sang circule dans le cœur de …", opts:["L'oreillette vers le ventricule","Du ventricule vers l'oreillette","L'oreillette et directement vers l'aorte"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Les globules rouges participent …", opts:["Au transport des gaz","Au système immunitaire","À la coagulation du sang"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Quelle est la composition liquide du sang ?", opts:["Les plaquettes","Le plasma","Les globules rouges","Les globules blancs"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Quelle est la principale conséquence de l'augmentation du débit cardiaque lors d'une activité physique ?", opts:["Baisse de la fréquence respiratoire","Augmentation de la distribution d'oxygène et de nutriments aux muscles","Réduction de l'apport de l'oxygène aux muscles","Diminution de la pression artérielle"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Quel est le principal rôle de la sueur pendant l'exercice physique ?", opts:["Fournir de l'énergie aux muscles","Réduire les niveaux de glucose sanguin","Réguler la température corporelle"], correct:2, img:IMG.sweat},
+{cat:"cardio", q:"Quel composant est majoritairement éliminé par le corps à travers la sueur pendant l'exercice ?", opts:["Protéines","Glucides","Graisses","Sodium et autres électrolytes"], correct:3, img:IMG.sweat},
+{cat:"cardio", q:"Lors de l'expiration, le volume de la cage thoracique …", opts:["Diminue","La pression intra-pulmonaire diminue","Les viscères sont poussés vers le bas car le diaphragme descend"], correct:0, img:IMG.lung},
+{cat:"cardio", q:"Comment appelle-t-on les deux replis membraneux qui vibrent au passage de l'air pour produire des sons ?", opts:["Membranes sonores","Alvéoles sonores","Cordes vocales"], correct:2, img:IMG.lung},
+{cat:"cardio", q:"Les contractions du cœur sont commandées par …", opts:["Système nerveux sympathique et parasympathique","Moelle épinière","Cerveau"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Comment appelle-t-on les globules rouges ?", opts:["Thrombocytes","Érythrocytes","Leucocytes","Lymphocytes"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Le système cardio-vasculaire est composé de …", opts:["Cœur, Artères, Veines, Capillaires","Cœur, Poumons, Bronches, Capillaires","Cœur, Larynx, Bronches, Capillaires"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Comment s'appelle le lieu d'échange entre l'air et le sang ?", opts:["Les bronchioles","Les mitochondries","Les alvéoles pulmonaires"], correct:2, img:IMG.lung},
+{cat:"cardio", q:"Quelle fréquence cardiaque maximale théorique a un individu de 50 ans ?", opts:["Environ 170 bpm","Environ 200 bpm"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"La tachycardie correspond à …", opts:["Une FC trop faible","Une FC trop lente","Une FC trop haute"], correct:2, img:IMG.heart},
+{cat:"cardio", q:"Au repos, le débit ventilatoire pour un individu normal est de …", opts:["6 litres/minute","9 litres/minute","2 litres/minute"], correct:0, img:IMG.lung},
+{cat:"cardio", q:"Les vaisseaux sanguins qui irriguent notre organisme sont constitués de …", opts:["Capillaires, tubules","Artères, veines"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Un souffle au cœur correspond à un dysfonctionnement des valves.", opts:["Un dysfonctionnement des valves","Une arythmie qui se bouche","Un taillon longuet"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"La boucle de régulation qui assure le maintien de la pression artérielle a pour effecteur le cœur.", opts:["A pour effecteur le cœur","A pour effecteur les barorécepteurs"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Dans le diabète, on constate …", opts:["Une glycolyse","Une hyperglycémie","Une hypophyse"], correct:1, img:IMG.neuro},
+{cat:"cardio", q:"Combien d'oreillettes comporte le cœur ?", opts:["1","2","3"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Quelle est la fréquence cardiaque d'un homme adulte au repos (en moyenne) ?", opts:["60–80 pulsations/minutes","40–50 pulsations/minutes","100–110 pulsations/minutes"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Où sont stockés les lipides ?", opts:["Dans le tissu adipeux","Dans le sang","Dans les muscles"], correct:0, img:IMG.cell},
+{cat:"cardio", q:"Le sang oxygéné est codifié par la couleur …", opts:["Bleu","Rouge"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Combien de cavités possède le cœur ?", opts:["3","4","2","1"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Le cœur est un muscle à contraction …", opts:["Involontaire","Volontaire"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"La fréquence cardiaque correspond au nombre de battements du cœur pendant une durée précise.", opts:["Au nombre de battements du cœur pendant une durée précise","À la durée d'un battement cardiaque","Au temps mis par le sang pour traverser le cœur"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Comment le dioxyde de carbone résiduel est-il expulsé du corps ?", opts:["Par l'inspiration","Par l'expiration","Par le péristaltisme"], correct:1, img:IMG.lung},
+{cat:"cardio", q:"Le sang apparu en oxygène avant au cœur via la veine cave dans …", opts:["L'oreillette droite","Le ventricule droit","Le ventricule gauche","L'oreillette gauche"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"La bradycardie correspond à une FC trop faible.", opts:["Une FC trop faible","Une FC trop lente","Une FC irrégulière"], correct:0, img:IMG.heart},
+{cat:"cardio", q:"Pour son fonctionnement, notre cerveau requiert …", opts:["5% de notre apport en calories","20% de notre apport en calories","15% de notre apport en calories"], correct:1, img:IMG.neuro},
+{cat:"cardio", q:"Quelle veine n'existe pas ?", opts:["Veine cave inférieure","Veine aortique"], correct:1, img:IMG.heart},
+{cat:"cardio", q:"Le poumon gauche est naturellement plus petit que le droit car il est du côté du cœur.", opts:["Il est du côté du cœur","C'est dans le cœur droit que revient le sang appauvri en oxygène avant d'aller dans les poumons","La majorité de la population est droitière"], correct:0, img:IMG.lung},
+{cat:"cardio", q:"Quelle est la principale fonction du retour au calme après un entraînement ?", opts:["Accélérer la température corporelle","Augmenter la fréquence cardiaque","Favoriser la récupération et la réduction progressive du rythme cardiaque"], correct:2, img:IMG.heart},
+
+// ══════════ FILIÈRES ÉNERGÉTIQUES ══════════
+{cat:"filières", q:"Quelle est la filière énergétique produisant le plus d'ATP ?", opts:["Anaérobie alactique","Aérobie","Anaérobie lactique"], correct:1, img:IMG.atp},
+{cat:"filières", q:"Quels sont les substrats utilisés pour la production d'ATP dans le système aérobie ?", opts:["Lipide / Glucide / Protide","Glycogène / PCr","Lipide / PCr"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Quels types d'efforts la filière Anaérobie Alactique permet-elle ?", opts:["Des efforts à réponse intense","Des efforts endurance","Des efforts explosifs"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Quel est le produit final de la filière anaérobie alactique ?", opts:["ATP + H2O + CO2","ATP + créatine phosphate","ATP + Acide lactique"], correct:1, img:IMG.atp},
+{cat:"filières", q:"À quoi correspond un effort de moins de 7 secondes à puissance maximale ?", opts:["La filière aérobie lactique","La filière aérobie","La filière anaérobie alactique"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Quelle est la durée de maintien en puissance de la voie anaérobie alactique ?", opts:["12 à 14 secondes","2 à 3 secondes","6 à 8 secondes"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Quel est en théorie le facteur limitant de la filière aérobie ?", opts:["Le VO2 max","Les protides","Les lipides","Les glucides"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Quelle est l'intensité maximale pour la filière Aérobie ?", opts:["30 km/h","VES","VO2 Max","25 km/h"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Quel type d'exercice doit-on favoriser lorsque je travaille la filière aérobie ?", opts:["Des efforts longs, peu intenses et continus","Des efforts très courts à très forte intensité et intermittents","Des efforts courts, intenses et intermittents"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Le délai de mobilisation de la filière aérobie est fixée par norme à …", opts:["5 minutes","1 minute","2 minutes","30 secondes"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Dans la filière anaérobie alactique, comment s'appelle la molécule dégradée qui permet de reconstituer de l'ATP ?", opts:["La créatine phosphore","La créatine","La créatine phosphate"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Pourquoi la filière aérobie permet-elle la perte de poids ?", opts:["Parce qu'elle utilise les lipides comme source d'énergie","Parce que cette filière utilise de l'ADP et de la phosphocrinine pour produire de l'ATP","Parce qu'elle est la plus rapide à se mettre en route"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Où se passe le cycle de Krebs ?", opts:["Dans la mitochondrie","Dans le sang","Dans le cerveau"], correct:0, img:IMG.atp},
+{cat:"filières", q:"La resphosphination de l'ATP se déroule dans …", opts:["Le réticulum sarcoplasmique","Le cytoplasme","La mitochondrie"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Dans quel organe est produit l'ATP à partir du glucose ?", opts:["La mitochondrie","L'appareil de Golgi","Le ribosome","Le noyau"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Le processus aérobie met en avant l'utilisation de l'O2.", opts:["L'utilisation des phosphates","L'utilisation des muscles","L'utilisation de l'O2"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Qu'est-ce que l'AMP ?", opts:["Adénosine monophosphate","Adénosine multiphosphate","Adénosine microphosphate"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Que signifie le terme ATP ?", opts:["Alpha Triphosphate","Adénosine Triphosphate","Accumulation Triphosphate"], correct:1, img:IMG.atp},
+{cat:"filières", q:"Quel est le seuil minimum de la FCMax nécessaire pour qu'un entraînement soit considéré comme efficace pour le système cardiovasculaire ?", opts:["40%","60%","50%"], correct:1, img:IMG.heart},
+{cat:"filières", q:"La filière aérobie a une capacité gigantesque mais sa puissance est faible.", opts:["Capacité gigantesque mais sa puissance est faible","Capacité (quelques secondes), mais sa puissance est très importante"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Que signifie l'acronyme VMA ?", opts:["Vitesse de marche athlétique","Vitesse maximale aérobie","Vitesse maximale anaérobie"], correct:1, img:IMG.atp},
+{cat:"filières", q:"En anaérobie alactique, combien de temps faut-il pour reconstituer les stocks d'ATP et CP ?", opts:["Plusieurs jours","Instantanément","Environ 1h","2 à 5 minutes"], correct:3, img:IMG.atp},
+{cat:"filières", q:"Quel est le principal substrat pour la filière anaérobie lactique ?", opts:["Protéines","Glucides","Lipides"], correct:1, img:IMG.atp},
+{cat:"filières", q:"À intensité maximale, quelle est la durée théorique que l'on peut tenir dans la filière Anaérobie Alactique ?", opts:["7 secondes","20 secondes","9,36 secondes","30 secondes"], correct:0, img:IMG.atp},
+{cat:"filières", q:"Quel substrat intern obtient-on de la filière anaérobie alactique ?", opts:["Mitochondrie","Créatine phosphate","Lactose"], correct:1, img:IMG.atp},
+{cat:"filières", q:"Qu'est-ce provient de l'action dans la filière anaérobie lactique ?", opts:["Du manque d'oxygène","De l'augmentation de la chaleur","De la production d'acide lactique","De l'accumulation d'ions H+"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Le sang a un rôle …", opts:["Thermorégulateur","Thermodigesteur","Thermoréfrigérateur"], correct:0, img:IMG.heart},
+{cat:"filières", q:"La VMA correspond à la quantité maximale d'oxygène qu'un organisme peut utiliser par …", opts:["Unité de temps au cours d'un exercice peu intense et de courte durée","Unité de temps au cours d'un exercice intense et de courte durée","Unité de temps au cours d'un exercice intense et de durée prolongée"], correct:2, img:IMG.atp},
+{cat:"filières", q:"Que signifie 'FCE' ?", opts:["Fréquence cardiaque d'effort","Fréquence cardiaque pour l'entraînement","Fréquence cardiaque de repos"], correct:1, img:IMG.heart},
+
+// ══════════ NEURO / ENDOCRINOLOGIE ══════════
+{cat:"neuro", q:"Le cerveau fait partie du système nerveux central.", opts:["Système nerveux sympathique","Système nerveux périphérique","Système nerveux central"], correct:2, img:IMG.neuro},
+{cat:"neuro", q:"La moelle épinière fait partie du système nerveux central.", opts:["Système nerveux central","Système nerveux périphérique","Système nerveux sympathique"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"Quel organe est responsable de la régulation de la température corporelle en réponse à l'effort physique ?", opts:["L'hypothalamus","Le foie","Les reins"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"L'hormone insuline a pour rôle de diminuer le taux de glucose dans le sang.", opts:["D'augmenter le taux de l'hormone de croissance","De diminuer le taux de glucose dans le sang","D'augmenter le taux de testostérone","De diminuer le taux de calcium"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"Quel neurotransmetteur est le plus fortement associé à l'activation du système nerveux sympathique ?", opts:["L'acétylcholine","La noradrénaline","L'épinéphrine"], correct:2, img:IMG.neuro},
+{cat:"neuro", q:"L'homéostasie est un terme qui veut dire que l'organisme s'adapte et maintient un état interne constant malgré les changements externes.", opts:["L'état interne de l'organisme se laisse influencer les changements externes","L'organisme s'adapte et maintient un état interne constant malgré les changements externes","L'organisme maintient un état totalement immuable"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"Quel système intervient pour l'augmentation de la FC ?", opts:["Le système nerveux parasympathique","Le système nerveux périphérique","Le système nerveux sympathique"], correct:2, img:IMG.neuro},
+{cat:"neuro", q:"Lors d'un réflexe, le message nerveux passe par la moelle épinière.", opts:["Le cerveau","La moelle épinière","Le cervelet"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"Le cervelet fait partie du système nerveux central.", opts:["Système nerveux central","Système nerveux sympathique","Système nerveux périphérique"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"La tachycardie a un effet anabolisant.", opts:["Anabolisant","Catabolisant","Aucun des deux"], correct:0, img:IMG.heart},
+{cat:"neuro", q:"Que contient le système nerveux périphérique ?", opts:["Les nerfs","L'encéphale","La moelle épinière"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"Il s'agit d'une hormone à effet hyperglycémiant …", opts:["La thyroxine","Le glucagon","L'insuline"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"La régulation du sucre dans le sang dépend du pancréas.", opts:["Des glandes surrénales","De la thyroïde","Du pancréas"], correct:2, img:IMG.neuro},
+{cat:"neuro", q:"Quelle est la principale fonction du système nerveux parasympathique ?", opts:["Réguler les fonctions de repos et de digestion","Augmenter la pression artérielle et le rythme cardiaque","Stimuler la réponse de combat ou de fuite"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"L'adrénaline et la noradrénaline sont sécrétées lors de la pratique sportive.", opts:["Dopamine, Adrénaline, Noradrénaline, histamine","Cortisone, Progestérones, Histamine","Prolactine, Calcitonine, Rénine"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"Quel organe sécrète l'hormone de croissance ?", opts:["Surrénale","Hypophysaire","Laryngée","Parathyroïde"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"Quelles hormones abaissent le sentiment d'anxiété et le ressenti de douleur ?", opts:["Les endorphines","Les œstrogènes","Les hormones thyroïdiennes"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"La testostérone est l'hormone sexuelle de l'homme.", opts:["Testostérone","Œstrogène","Progestérone"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"Quel système joue un rôle essentiel dans la régulation des hormones de stress comme le cortisol ?", opts:["Système musculaire","Système endocrinien","Système immunitaire","Système nerveux central"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"Quelle est la principale fonction des reins dans le corps humain ?", opts:["Filtrer les déchets du sang et produire de l'urine","Réguler la pression artérielle","Produire des hormones"], correct:0, img:IMG.neuro},
+{cat:"neuro", q:"La transpiration est un phénomène externe du corps géré par l'hypothalamus.", opts:["Géré par l'hippocampe","Géré par l'hypothalamus"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"Que signifie le terme 'phosphorylation' ?", opts:["Libération d'un phosphate inorganique","Ajoute un phosphate à une molécule organique","Suppression d'un phosphate à une molécule organique"], correct:1, img:IMG.atp},
+{cat:"neuro", q:"La mitochondrie est considérée comme …", opts:["Le transporteur d'O2","Le chef d'orchestre de l'hypothalamus","La centrale énergétique de la cellule","L'hormone régulatrice de la glycémie"], correct:2, img:IMG.cell},
+{cat:"neuro", q:"Comment appelle-t-on la molécule présente dans toutes les cellules vivantes et qui constitue le matériel génétique ?", opts:["ARN","ATP","ADN"], correct:2, img:IMG.cell},
+{cat:"neuro", q:"Quels sont les capteurs dans le muscle responsables de la détection de l'étirement lors du réflexe myotatique ?", opts:["Récepteurs de la douleur","Fuseaux neuromusculaires","Organes tendineux de Golgi"], correct:1, img:IMG.neuro},
+{cat:"neuro", q:"La myéline entoure l'axone et sert comme isolant et conducteur du message électrique.", opts:["À stopper le message électrique","À créer le message électrique","Comme isolant et conducteur du message électrique"], correct:2, img:IMG.neuro},
+
+// ══════════ RESPIRATION ══════════
+{cat:"respiration", q:"Comment appelle-t-on le processus qui produit des cellules sanguines ?", opts:["La glycolipidose","La mégaloglycémie","La digestion cellulaire","L'hématopoïèse"], correct:3, img:IMG.lung},
+{cat:"respiration", q:"Quelle est la conséquence d'un diaphragme contracté en permanence ?", opts:["Une amélioration de la posture","Une meilleure gestion du stress et de l'anxiété","Une restriction de la respiration et des difficultés respiratoires","Une augmentation de la capacité pulmonaire"], correct:2, img:IMG.lung},
+{cat:"respiration", q:"Les muscles striés squelettiques sont attachés aux os par des tendons.", opts:["Attachés aux os par des sites squelettiques","Attachés aux os par des tendons","Attachés aux os par des ligaments"], correct:1, img:IMG.skeletal},
+{cat:"respiration", q:"Quel terme désigne le volume d'air supplémentaire qu'une personne peut inspirer après une inspiration normale ?", opts:["Volume courant (VC)","Volume de réserve inspiratoire (VRI)","Volume de réserve expiratoire (VRE)","Volume résiduel (VR)"], correct:1, img:IMG.lung},
+{cat:"respiration", q:"Le contrôle volontaire des mouvements est principalement assuré par quel système nerveux ?", opts:["Somatique","Autonome","Central"], correct:0, img:IMG.neuro},
+{cat:"respiration", q:"Les lactatés sont utilisés comme source d'énergie par le cœur et d'autres muscles.", opts:["Produits exclusivement lors d'activités physiques de faible intensité","Utilisés comme source d'énergie par le cœur et d'autres muscles","Uniquement des déchets toxiques du métabolisme musculaire"], correct:1, img:IMG.atp},
+{cat:"respiration", q:"Le rôle du cervelet est principalement lié à la gestion du contrôle moteur.", opts:["Vrai","Faux"], correct:0, img:IMG.neuro},
+{cat:"respiration", q:"Quelle méthode simple peut aider à décrisper le diaphragme ?", opts:["La respiration profonde et consciente, avec des soupirs","La respiration superficielle et rapide","L'activité physique intense"], correct:0, img:IMG.lung},
+{cat:"respiration", q:"Comment appelle-t-on le tissu musculaire du cœur ?", opts:["Endocarde","Myocarde","Péricarde"], correct:1, img:IMG.heart},
+{cat:"respiration", q:"La contraction musculaire, quelle proposition est juste ?", opts:["Lorsque la tête de myosine s'accroche à l'actine, il y a formation d'un pont d'union","L'actine et le myofilament épais des myofibrilles","Le potassium ne permet pas d'action de changer de configuration permettant ainsi la contraction musculaire","L'enzyme ATPase est présente sur l'actine, et dégradée ATP en ADP+P"], correct:0, img:IMG.sarco},
+{cat:"respiration", q:"Quel est le rôle principal des fosses nasales dans le processus respiratoire ?", opts:["Amplifier les sons produits par la voix","Filtrer, humidifier et réchauffer l'air inspiré","Fournir une zone de réception pour les nerfs olfactifs"], correct:1, img:IMG.lung},
+{cat:"respiration", q:"Une unité fonctionnelle est constituée de 3 éléments principaux …", opts:["Le noyau, la membrane et le cytoplasme","Le noyau, la vacuole et la mitochondrie","La vacuole, la membrane cellulaire et le paroi"], correct:0, img:IMG.cell},
+{cat:"respiration", q:"Les filières énergétiques se mettent en route uniquement lorsque le stock d'ATP est épuisé.", opts:["Faux","Vrai"], correct:0, img:IMG.atp},
+{cat:"respiration", q:"Quelle est la principale fonction de l'expiration ?", opts:["Éliminer le dioxyde de carbone (CO2)","Réduire la pression artérielle","Apporter de l'oxygène aux cellules"], correct:0, img:IMG.lung},
+{cat:"respiration", q:"Ils sont au nombre de deux …", opts:["Bronches","Bronchioles","Alvéoles pulmonaires"], correct:0, img:IMG.lung},
+{cat:"respiration", q:"La myéline entoure l'axone et sert …", opts:["À stopper le message électrique","À créer le message électrique","Comme isolant et conducteur du message électrique"], correct:2, img:IMG.neuro},
+{cat:"respiration", q:"Quel est le volume courant (VC) en physiologie respiratoire ?", opts:["Le volume d'air maximal qu'une personne peut inspirer après une expiration normale","Le volume d'air expiré lors d'une inspiration maximale","Le volume d'air inspiré ou expiré à chaque cycle respiratoire normal","Le volume d'air contenu dans les poumons après une expiration forcée"], correct:2, img:IMG.lung},
+{cat:"respiration", q:"La fréquence respiratoire correspond au nombre de mouvements respiratoires effectués pendant une durée précise.", opts:["Au nombre de battements du cœur pendant une durée précise","À la quantité d'air échangée entre l'air et les poumons","À l'amplitude des mouvements respiratoires pendant une minute","Au nombre de mouvements respiratoires effectués pendant une durée précise"], correct:3, img:IMG.lung},
+{cat:"respiration", q:"Le cortex cérébral est également appelé …", opts:["Substance chrétienne","Substance blanche","Substance grise"], correct:2, img:IMG.neuro},
+{cat:"respiration", q:"Comment s'appelle le cycle énergétique complet qui assemble toute la glycolyse, tout le néoglucogénèse et le recyclage du lactate sanguin ?", opts:["Cycle de Calvin","Cycle de Cori","Cycle de Krebs","Cycle de Carroll"], correct:1, img:IMG.atp},
+{cat:"respiration", q:"Quel est le rôle de l'étirement dans les éléments permettant la relaxation ?", opts:["De garder l'élasticité des muscles","D'augmenter la longueur de repos","De garder la mobilité articulaire","De maintenir voire d'améliorer les sensations"], correct:1, img:IMG.muscle},
+{cat:"respiration", q:"Quel incidencement peut être associé à une respiration principalement costale ?", opts:["Elle favorise la relaxation musculaire","Elle nécessite beaucoup d'effort pour peu d'efficacité ventilatoire","Elle nécessite moins d'effort musculaire"], correct:1, img:IMG.lung},
+{cat:"respiration", q:"La récupération active se pratique à 75% du VO2 max pendant 45 minutes.", opts:["Faux","Vrai"], correct:0, img:IMG.atp},
+{cat:"respiration", q:"Quel est le contenu d'une unité fonctionnelle (approche biologique) ?", opts:["L'encéphale","Le cœur","La cellule"], correct:2, img:IMG.cell},
+
+// ══════════ AUTRES ══════════
+{cat:"autres", q:"Qu'est-ce que la surcompensation ?", opts:["Mécanisme que l'on impose à son organisme de manière à le rendre plus performant","Mécanisme que l'on expose à son organisme afin d'éviter une blessure","Mécanisme que l'on impose à son organisme de manière à le rendre moins performant"], correct:0, img:IMG.muscle},
+{cat:"autres", q:"Après plusieurs semaines d'entraînement intensif, un de tes clients remarque qu'il est plus fatigué et moins motivé. Quel est ton conseil ?", opts:["Prendre un complément énergisant","Planifier des semaines avec des séances plus légères, inclure du repos","Augmenter la durée des séances pour compenser la fatigue"], correct:1, img:IMG.muscle},
+{cat:"autres", q:"Quel est un indicateur psychologique du surentraînement chez un pratiquant de fitness ?", opts:["Sentiment de fatigue mentale et de démotivation","Concentration améliorée lors des séances","Motivation accrue pour s'entraîner"], correct:0, img:IMG.muscle},
+{cat:"autres", q:"Un tissu est un ensemble de cellules exerçant les mêmes fonctions.", opts:["Un ensemble de cellules exerçant les mêmes fonctions","Le synonyme d'organe","Constitué de différents types de cellules"], correct:0, img:IMG.cell},
+{cat:"autres", q:"La physiologie est une science qui étudie comment fonctionne le corps humain.", opts:["Comment le corps humain est structuré","Comment fonctionne le corps humain","Les mouvements du corps humain"], correct:1, img:IMG.cell},
+{cat:"autres", q:"Comment appelle-t-on les protéines qui ont pour mission d'accélérer (catalyser) les réactions chimiques ?", opts:["Enzymes","Acides aminés","Kératines","Acides gras"], correct:0, img:IMG.cell},
+{cat:"autres", q:"L'anabolisme est un processus de reconstruction.", opts:["Un processus de reconstruction","Un processus de destruction"], correct:0, img:IMG.cell},
+{cat:"autres", q:"Où se trouvent les organes tendineux de Golgi ?", opts:["Dans les muscles","Dans les tendons","Dans les ligaments","Dans les os"], correct:1, img:IMG.sarco},
+{cat:"autres", q:"Que signifie 'IMC' ?", opts:["Indice moyenne calcium","Indice moyenne soluble","Indice de masse corporelle"], correct:2, img:IMG.cell},
+{cat:"autres", q:"La gestion individuelle de l'intensité est rendue possible grâce à un étalonnage (une évaluation).", opts:["Est rendue possible grâce à un étalonnage (une évaluation)","N'est pas possible : on se réfère toujours à une norme globale"], correct:0, img:IMG.muscle},
+{cat:"autres", q:"L'entraînement – Quelle affirmation illustre le mieux le principe de variabilité ?", opts:["Se concentrer uniquement sur un type d'activité pour devenir expert","Faire les mêmes séances chaque semaine pour mesurer les progrès","Varier régulièrement les exercices, les intensités et les modes d'entraînement"], correct:2, img:IMG.muscle},
+{cat:"autres", q:"Combien y a-t-il de nerfs crâniens ?", opts:["15 paires","21 paires","12 paires"], correct:2, img:IMG.neuro},
+{cat:"autres", q:"Comment appelle-t-on les cellules hautement spécialisées du système nerveux ?", opts:["Les dendrites","Les synapses","Les neurones","Les arcs"], correct:2, img:IMG.neuro},
+{cat:"autres", q:"Pour lutter contre l'obésité, la meilleure stratégie est de réaliser un effort répété et d'intensité modérée.", opts:["Peu fréquent et d'intensité forte","Répété et d'intensité modérée","Répété et d'intensité forte","Peu fréquent et d'intensité modérée"], correct:1, img:IMG.muscle},
+{cat:"autres", q:"Qu'est-ce que la puissance ?", opts:["Vitesse x explosivité","Force x vitesse","Endurance x vitesse"], correct:1, img:IMG.muscle},
+{cat:"autres", q:"Quelle stratégie est recommandée pour éviter le surentraînement chez un sportif ?", opts:["Réguler la charge d'entraînement chaque semaine","Incorporer des jours de repos et de récupération active","S'entraîner uniquement à haute intensité"], correct:1, img:IMG.muscle},
+{cat:"autres", q:"Les alvéoles pulmonaires sont très vascularisées.", opts:["Faux","Vrai"], correct:1, img:IMG.lung},
+{cat:"autres", q:"Quelle est l'affirmation correcte ? Un souffle au cœur interdit systématiquement toute activité physique ou sportive.", opts:["Un souffle au cœur interdit systématiquement toute activité physique ou sportive","La fréquence cardiaque maximale théorique d'un individu de 50 ans est théoriquement d'environ 170 battements par minute"], correct:1, img:IMG.heart},
+{cat:"autres", q:"Quelle caractéristique définit le mieux un être homéotherme, tel que l'Homme ?", opts:["L'incapacité à réguler sa température corporelle","Capacité à changer sa température en fonction de l'environnement","Régulation de la température interne autour d'une valeur cible constante, quelle que soit la température extérieure"], correct:2, img:IMG.neuro},
+{cat:"autres", q:"Quels éléments sont essentiels au bon fonctionnement de notre système de régulation thermique ?", opts:["Uniquement les protéines pour ventiler les muscles","Uniquement les lipides pour maintenir la température corporelle","Uniquement les vitamines pour réguler la température corporelle","Les glucides pour fournir de l'énergie, l'oxygène pour l'activité cellulaire et l'eau pour la circulation sanguine"], correct:3, img:IMG.neuro},
+{cat:"autres", q:"Les nerfs rachidiens sont à la fois sensitifs et moteurs.", opts:["Sensitifs uniquement","Sensitifs et moteurs","Sensitifs uniquement"], correct:1, img:IMG.neuro},
+{cat:"autres", q:"Quel peut être l'impact pour les reins d'une consommation excessive de protéines ?", opts:["Augmentation de la production de cellules sanguines","Aucun effet","Augmentation de la charge de travail rénal"], correct:2, img:IMG.neuro},
+{cat:"autres", q:"Laquelle de ces affirmations est juste à propos des réflexes ?", opts:["L'information nerveuse est traitée par la moelle osseuse","L'organe tendineux de Golgi déclenche le réflexe myotatique","Les réflexes peuvent être appris","Les réflexes sont innés"], correct:3, img:IMG.neuro},
+{cat:"autres", q:"Que mesure le test Borg ?", opts:["La décision entre les fléchisseurs et les extenseurs du tibia","La décision entre les fléchisseurs et les extenseurs de la jambe","La décision entre les fléchisseurs et les extenseurs du tronc"], correct:0, img:IMG.muscle},
+{cat:"autres", q:"Pour un adulte en bonne santé, dans quelle fourchette évolue généralement la température corporelle pendant 24 h ?", opts:["Entre 30°C et 35°C","Entre 24°C et 30°C","Entre 36,1°C et 37,8°C"], correct:2, img:IMG.neuro},
+{cat:"autres", q:"Le cœur et le cerveau sont consommateurs de fructose.", opts:["VRAI","FAUX"], correct:1, img:IMG.heart},
+{cat:"autres", q:"Le VO2Max peut atteindre sa valeur optimale vers …", opts:["23 et 27 ans","10 et 20 ans","14 et 15 ans"], correct:1, img:IMG.atp},
+{cat:"autres", q:"L'exercice …", opts:["La puissance maximale peut être maintenue 5 à 10 secondes","Les exercices de cette filière sont les activités et l'hydrogène","Cette filière évolue pas d'O2","Le maintien de la capacité est théoriquement illimitée et dépend du VO2max"], correct:3, img:IMG.atp},
+{cat:"autres", q:"Quel conseil donnerais-tu à un client qui se plaint de douleurs musculaires persistantes ?", opts:["Ignorer la douleur et continuer de s'entraîner intensément","Augmenter la charge d'entraînement ça va passer","Prendre des compléments alimentaires pour masquer la douleur","Évaluer et ajuster le programme d'entraînement, en incluant des jours de repos"], correct:3, img:IMG.muscle},
+{cat:"autres", q:"Comment les douleurs musculaires persistantes peuvent-elles affecter la motivation d'un client ?", opts:["En créant de l'anxiété et en réduisant sa motivation","En améliorant sa concentration","En augmentant son enthousiasme pour les séances d'entraînement"], correct:0, img:IMG.muscle},
+{cat:"autres", q:"Comment l'hydratation influence-t-elle le travail des reins durant l'activité sportive ?", opts:["Elle aide à maintenir une filtration efficace du sang","Elle ralentit la fonction rénale","Elle n'a aucun impact sur la fonction rénale"], correct:0, img:IMG.neuro},
+{cat:"autres", q:"Un client demande s'il doit s'entraîner plus souvent pour atteindre ses objectifs. Quel conseil lui donnes-tu ?", opts:["Doubler ses séances d'entraînement chaque semaine","Lui dire que le repos est pour les faibles","Supprimer le repos et allonger les séances","Évaluer et ajuster le programme d'entraînement, en incluant des jours de repos"], correct:3, img:IMG.muscle},
+{cat:"autres", q:"La mesure de l'accélération et décélération de la FC est l'un des objectifs des tests d'effort.", opts:["VRAI","FAUX"], correct:0, img:IMG.heart},
+{cat:"autres", q:"La la glycolyse, c'est trop de glucose dans les urines.", opts:["Glucose dans le sang","Glycogène dans le foie","Glucose dans les urines"], correct:2, img:IMG.atp},
+{cat:"autres", q:"Quelle est la principale fonction du système lymphatique dans le corps humain ?", opts:["Contrôler les niveaux de glucose dans le sang","Drainer l'excès de liquide interstitiel et soutenir le système immunitaire","Produire les hormones responsables de la croissance","Transporter l'oxygène vers les cellules"], correct:1, img:IMG.neuro},
+{cat:"autres", q:"Comment fonctionne le système nerveux parasympathique pendant l'exercice physique ?", opts:["Il maintient constant, indépendamment de l'activité extérieure","Il réduit pour promouvoir un état de calme","Il n'a aucun effet sur le rythme cardiaque","Il augmente en préparation à l'exercice"], correct:1, img:IMG.neuro},
+{cat:"autres", q:"La mitochondrie ne peut pas grandir en taille et en nombre.", opts:["Vrai","Faux"], correct:1, img:IMG.cell},
+];
+
+const LETTERS = ["a","b","c","d","e"];
+function tagLabel(cat) {
+  return {muscles:"Muscles",cardio:"Cardio-Vasculaire",filières:"Filières Énergétiques",neuro:"Neuro-Endocrino",respiration:"Respiration",autres:"Physiologie Générale"}[cat]||cat;
+}
+
+function renderCards(filtered) {
+  const grid = document.getElementById('grid');
+  document.getElementById('counter').textContent = filtered.length + ' / ' + questions.length;
+  if (!filtered.length) { grid.innerHTML='<div class="no-results">Aucune question trouvée.</div>'; return; }
+  grid.innerHTML = filtered.map((q,i)=>{
+    const opts = q.opts.map((o,j)=>{
+      const ok = j===q.correct;
+      return `<div class="option ${ok?'correct':''}">
+        <span class="opt-marker">${LETTERS[j]}</span>
+        <span>${o}${ok?'&nbsp;&nbsp;<span class="correct-label">Bonne réponse</span>':''}</span>
+      </div>`;
+    }).join('');
+    const imgEl = q.img ? `<img class="q-img" src="${q.img}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : '';
+    const phEl  = `<div class="q-img-placeholder" style="${q.img?'display:none':''}">🔬</div>`;
+    return `<div class="card" data-cat="${q.cat}">
+      <div class="card-top">
+        <div>
+          <div class="q-meta"><div class="q-num">${i+1}</div><span class="q-tag">${tagLabel(q.cat)}</span></div>
+          <div class="q-text">${q.q}</div>
+        </div>
+        ${imgEl}${phEl}
+      </div>
+      <div class="options">${opts}</div>
+    </div>`;
+  }).join('');
+}
+
+let curFilter='all', curSearch='';
+function applyFilters() {
+  let f = questions;
+  if (curFilter!=='all') f=f.filter(q=>q.cat===curFilter);
+  if (curSearch.trim()) { const s=curSearch.toLowerCase(); f=f.filter(q=>q.q.toLowerCase().includes(s)||q.opts.some(o=>o.toLowerCase().includes(s))); }
+  renderCards(f);
+}
+
+document.querySelectorAll('.filter-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); curFilter=b.dataset.filter; applyFilters();
+  });
+});
+document.getElementById('search').addEventListener('input',e=>{ curSearch=e.target.value; applyFilters(); });
+document.getElementById('total-badge').textContent = questions.length + ' questions';
+applyFilters();
+</script>
+</body>
+</html>
